@@ -1,0 +1,47 @@
+name: SIM-PETANI SUMUT Database Sync
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sim-petani-sync
+  cancel-in-progress: false
+
+jobs:
+  synchronize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      DATAWAREHOUSE_URL: ${{ secrets.DATAWAREHOUSE_URL }}
+      DB_KARO: ${{ secrets.DB_KARO }}
+      DB_DELI: ${{ secrets.DB_DELI }}
+      DB_LANGKAT: ${{ secrets.DB_LANGKAT }}
+      DB_PUSAT: ${{ secrets.DB_PUSAT }}
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Check Python syntax
+        run: |
+          python -m py_compile sync.py
+
+      - name: Synchronize databases
+        run: |
+          python sync.py
