@@ -202,3 +202,4 @@ if menu == "Dashboard Utama":
     c3.metric(
         "Kabupaten",
         int(r.total_kabupaten)
+    )
